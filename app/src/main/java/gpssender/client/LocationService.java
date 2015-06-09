@@ -1,5 +1,7 @@
 package gpssender.client;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +10,10 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,13 +38,6 @@ public class LocationService extends Service {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        return START_STICKY;
-    }
-
-    @Override
-    @Deprecated
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
 
         mLocationManager = (LocationManager) getApplicationContext()
                 .getSystemService(Context.LOCATION_SERVICE);
@@ -53,10 +50,21 @@ public class LocationService extends Service {
             @Override
             public void run() {
                 Log.i("location2",mLat+"");
+                addNotification(mLat+"",mLon+"");
                 new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat+"",mLon+"").execute(new Void[]{});
             }
         };
-        mTimer.schedule(timerTask,60*1000,60*1000);
+        mTimer.schedule(timerTask, 60 * 1000, 60 * 1000);
+
+        return START_STICKY;
+    }
+
+    @Override
+    @Deprecated
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+
+
     }
 
     private LocationListener listener = new LocationListener() {
@@ -85,6 +93,23 @@ public class LocationService extends Service {
 
         }
     };
+
+    private void addNotification(String lat, String lon){
+        Intent intent = new Intent(this, LoginActivity.class);
+        PendingIntent pintent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle(getString(R.string.app_name));
+        builder.setContentText(new Date().toString()+" ["+lat+", "+lon+"]");
+        builder.setAutoCancel(false);
+        builder.setOngoing(true);
+//        builder.setContentIntent(pintent);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(0, builder.build());
+    }
 
     @Override
     public void onDestroy() {
