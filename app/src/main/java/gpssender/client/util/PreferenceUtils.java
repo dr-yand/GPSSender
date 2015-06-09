@@ -9,16 +9,15 @@ import android.preference.PreferenceManager;
 
 public class PreferenceUtils {
 
-    public static void saveSingin(Context context, boolean isSignin){
+    public static void saveUserId(Context context, String userId){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("isSignin", isSignin);
+        editor.putString("userId", userId);
         editor.commit();
     }
 
-    //получаем пользовательские данные
-    public static boolean isSignin(Context context){
+    public static String getUserId(Context context){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean("isSignin", false);
+        return preferences.getString("userId","");
     }
 }

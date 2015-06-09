@@ -115,7 +115,7 @@ public class MapActivity extends ActionBarActivity implements GoogleMap.OnMarker
     public void onClick(View view) {
         if(view.getId()==R.id.signout){
             stopService(new Intent(this, LocationService.class));
-            PreferenceUtils.saveSingin(this,false);
+            PreferenceUtils.saveUserId(this, "");
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();

@@ -32,7 +32,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
 
         addNotification();
 
-        if(PreferenceUtils.isSignin(this)){
+        if(!PreferenceUtils.getUserId(this).equals("")){
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
             finish();
@@ -101,11 +101,11 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
     }
 
     @Override
-    public void onResultLogin(ServerAnswer result) {
+    public void onResultLogin(ServerAnswer result, String userId) {
         mProgressDialog.dismiss();
         if(result==ServerAnswer.ALL_OK){
             startService(new Intent(this, LocationService.class));
-            PreferenceUtils.saveSingin(this, true);
+            PreferenceUtils.saveUserId(this, userId);
             Intent intent = new Intent(this, MapActivity.class);
             startActivity(intent);
             finish();

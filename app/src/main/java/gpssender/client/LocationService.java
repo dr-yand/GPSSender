@@ -14,6 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import gpssender.client.task.SendCoordinatesTask;
+import gpssender.client.util.PreferenceUtils;
 
 public class LocationService extends Service {
 
@@ -52,7 +53,7 @@ public class LocationService extends Service {
             @Override
             public void run() {
                 Log.i("location2",mLat+"");
-                new SendCoordinatesTask(getApplicationContext(),mLat+"",mLon+"").execute(new Void[]{});
+                new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat+"",mLon+"").execute(new Void[]{});
             }
         };
         mTimer.schedule(timerTask,60*1000,60*1000);

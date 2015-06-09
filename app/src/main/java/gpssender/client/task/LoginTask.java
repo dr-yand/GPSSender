@@ -28,6 +28,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 
@@ -40,12 +41,12 @@ import gpssender.client.model.ServerAnswer;
 import gpssender.client.util.Config;
 
 //Класс авторизации
-public class LoginTask extends AsyncTask<Void, String, Boolean>{
+public class LoginTask extends AsyncTask<Void, String, String>{
 	private String mLogin, mPassword;
 	private String mHost = Config.LOGIN_URL;
 
 	public interface OnLoginListener {
-		public void onResultLogin(ServerAnswer result);
+		public void onResultLogin(ServerAnswer result, String userId);
 	}
 
 
@@ -61,83 +62,18 @@ public class LoginTask extends AsyncTask<Void, String, Boolean>{
 
 
     @Override
-    protected Boolean doInBackground(Void... par) {
-        AuthInfo authInfo = getAuthInfo(mHost, Config.SITE_LOGIN, Config.SITE_PASSWORD);
-
-        return signin(mHost,mLogin,mPassword, Config.SITE_LOGIN, Config.SITE_PASSWORD,authInfo.session, authInfo.token);
+    protected String doInBackground(Void... par) {
+        return signin(mHost,mLogin,mPassword);
     }
 
-    private class AuthInfo{
-        public String session, token;
-    }
 
-    private AuthInfo getAuthInfo(String host, String login, String password){
-        AuthInfo result = new AuthInfo();
-        String responseString = "";
-        try {
-            URL url = new URL (host);
-
-            String encoding = Base64.encodeToString(new String(login.trim()+":"+password.trim()).getBytes(), Base64.DEFAULT);
-
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setInstanceFollowRedirects(true);
-            connection.setRequestProperty("Authorization", "Basic " + encoding.trim());
-
-            Map<String, List<String>> headerFields = connection.getHeaderFields();
-
-            Set<String> headerFieldsSet = headerFields.keySet();
-            for(String key:headerFieldsSet){
-                Log.i(">"+key, headerFields.get(key).toString());
-            }
-            String session = "";
-            String[] cookies = headerFields.get("Set-Cookie").toString().split(";");
-            for (String cookie : cookies) {
-                cookie=cookie.replaceAll("\\[","").replaceAll("\\[","");
-                if(cookie.split("=")[0].equals("_igooods_session")){
-                    session = cookie;
-                }
-            }
-
-            InputStream content = null;//(InputStream)connection.getInputStream();
-            int status = connection.getResponseCode();
-
-            if(status >= HttpStatus.SC_BAD_REQUEST)
-                content = connection.getErrorStream();
-            else
-                content = connection.getInputStream();
-            BufferedReader in   =
-                    new BufferedReader (new InputStreamReader (content));
-
-            String line="";
-            while ((line = in.readLine()) != null) {
-                responseString+=line;
-            }
-            org.jsoup.nodes.Document doc = Jsoup.parse(responseString);
-            org.jsoup.nodes.Element el = doc.select("input[name*=" + "authenticity_token").first();
-            String token = el.attr("value");
-            result.token = token;
-            result.session = session;
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    private boolean signin(String host, String login, String password,
-                           String siteLogin, String sitePassword, String session, String token){
-        boolean result = false;
+    private String signin(String host, String login, String password){
+        String result = "";
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(host);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
         nameValuePairs.add(new BasicNameValuePair("user[login]", login));
         nameValuePairs.add(new BasicNameValuePair("user[password]", password));
-        nameValuePairs.add(new BasicNameValuePair("authenticity_token", token));
-        String encoding = Base64.encodeToString(new String(siteLogin.trim()+":"+sitePassword.trim()).getBytes(), Base64.NO_WRAP);
-        httppost.setHeader("Authorization", "Basic "+encoding);
-        httppost.addHeader("Cookie", session);
-
         HttpResponse response = null;
         String responseString = null;
         try {
@@ -151,11 +87,10 @@ public class LoginTask extends AsyncTask<Void, String, Boolean>{
                 response.getEntity().writeTo(out);
                 out.close();
                 responseString = out.toString();
-                org.jsoup.nodes.Document doc = Jsoup.parse(responseString);
-                org.jsoup.nodes.Element el = doc.select("input[name*=" + "authenticity_token").first();
-//                String tokenValue = el.attr("value");
-                if(el==null)
-                    result = true;
+
+                JSONObject jsonObject = new JSONObject(responseString);
+                result = jsonObject.getString("user_id");
+
             } else{
                 response.getEntity().getContent().close();
                 throw new IOException(statusLine.getReasonPhrase());
@@ -171,11 +106,11 @@ public class LoginTask extends AsyncTask<Void, String, Boolean>{
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(String result) {
         super.onPostExecute(result);
         ServerAnswer response = ServerAnswer.ERROR;
-        if(result)
+        if(!result.equals(""))
             response = ServerAnswer.ALL_OK;
-        listener.onResultLogin(response);
+        listener.onResultLogin(response, result);
     }
 }

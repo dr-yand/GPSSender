@@ -35,13 +35,15 @@ import gpssender.client.util.Config;
 //Класс авторизации
 public class SendCoordinatesTask extends AsyncTask<Void, String, Boolean>{
 	private String mLat, mLon;
+    private String mUserId;
 	private String mHost = Config.COORDINATES_URL;
 
 
 	private Context mContext;
 
-	public SendCoordinatesTask(Context context, String lat, String lon){
+	public SendCoordinatesTask(Context context, String userId, String lat, String lon){
 		this.mContext=context;
+        this.mUserId = userId;
         this.mLat = lat;
         this.mLon = lon;
 	}
@@ -49,15 +51,16 @@ public class SendCoordinatesTask extends AsyncTask<Void, String, Boolean>{
 
     @Override
     protected Boolean doInBackground(Void... par) {
-        return send(mHost, mLat, mLon);
+        return send(mHost, mUserId, mLat, mLon);
     }
 
 
-    private boolean send(String host, String lat, String lon){
+    private boolean send(String host, String userId, String lat, String lon){
         boolean result = false;
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(host);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
+        nameValuePairs.add(new BasicNameValuePair("user_id", userId));
         nameValuePairs.add(new BasicNameValuePair("latitude", lat));
         nameValuePairs.add(new BasicNameValuePair("longitude", lon));
 
