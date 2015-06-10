@@ -128,9 +128,9 @@ public class MapActivity extends ActionBarActivity implements GoogleMap.OnMarker
             @Override
             public void onMyLocationChange(Location location) {
                 updateCurrentLocation(location.getLatitude(), location.getLongitude());
+                mMap.setOnMyLocationChangeListener(null);
             }
         });
-
     }
 
     @Override
