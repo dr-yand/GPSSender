@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -31,6 +32,7 @@ public class LocationService extends Service {
         return null;
     }
 
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -43,7 +45,7 @@ public class LocationService extends Service {
                 .getSystemService(Context.LOCATION_SERVICE);
 
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                60 * 1000, 5, listener);
+                10 * 1000, 5, listener);
 
         mTimer = new Timer();
         TimerTask timerTask = new TimerTask() {
@@ -54,7 +56,7 @@ public class LocationService extends Service {
                 new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat+"",mLon+"").execute(new Void[]{});
             }
         };
-        mTimer.schedule(timerTask, 60 * 1000, 60 * 1000);
+        mTimer.schedule(timerTask, 10 * 1000, 10 * 1000);
 
         return START_STICKY;
     }
@@ -95,7 +97,8 @@ public class LocationService extends Service {
     };
 
     private void addNotification(String lat, String lon){
-        Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, MapActivity.class);
+        intent.addFlags (Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pintent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -104,7 +107,7 @@ public class LocationService extends Service {
         builder.setContentText(new Date().toString()+" ["+lat+", "+lon+"]");
         builder.setAutoCancel(false);
         builder.setOngoing(true);
-//        builder.setContentIntent(pintent);
+        builder.setContentIntent(pintent);
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 

@@ -1,5 +1,6 @@
 package gpssender.client;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,10 +31,11 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addNotification();
+//        addNotification();
 
         if(!PreferenceUtils.getUserId(this).equals("")){
             Intent intent = new Intent(this, MapActivity.class);
+            intent.addFlags (Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         }
@@ -44,21 +46,6 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
         initDlg();
     }
 
-    private void addNotification(){
-        Intent intent = new Intent(this, LoginActivity.class);
-        PendingIntent pintent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setContentTitle(getString(R.string.app_name));
-        builder.setAutoCancel(false);
-        builder.setOngoing(true);
-//        builder.setContentIntent(pintent);
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        mNotificationManager.notify(0, builder.build());
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -107,6 +94,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
             startService(new Intent(this, LocationService.class));
             PreferenceUtils.saveUserId(this, userId);
             Intent intent = new Intent(this, MapActivity.class);
+            intent.addFlags (Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         }
