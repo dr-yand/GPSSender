@@ -51,14 +51,24 @@ public class LocationService extends Service {
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
-                Log.i("location2",mLat+"");
-                addNotification(mLat+"",mLon+"");
-                new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat+"",mLon+"").execute(new Void[]{});
+                if(isGpsEnabled()) {
+                    Log.i("location2", mLat + "");
+                    addNotification(mLat + "", mLon + "");
+                    new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat + "", mLon + "").execute(new Void[]{});
+                }
             }
         };
         mTimer.schedule(timerTask, 10 * 1000, 10 * 1000);
 
         return START_STICKY;
+    }
+
+    private boolean isGpsEnabled(){
+        LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        if (manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -15,7 +15,7 @@
         android:id="@+id/login"
         android:layout_gravity="center_horizontal"
         android:hint="Логин"
-        android:text="user@example.com" />
+        android:text="picker1@example.com" />
 
     <EditText
         android:layout_width="match_parent"

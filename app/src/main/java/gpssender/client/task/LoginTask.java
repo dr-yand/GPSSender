@@ -72,8 +72,8 @@ public class LoginTask extends AsyncTask<Void, String, String>{
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(host);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-        nameValuePairs.add(new BasicNameValuePair("user[login]", login));
-        nameValuePairs.add(new BasicNameValuePair("user[password]", password));
+        nameValuePairs.add(new BasicNameValuePair("employee[login]", login));
+        nameValuePairs.add(new BasicNameValuePair("employee[password]", password));
         HttpResponse response = null;
         String responseString = null;
         try {
@@ -89,7 +89,7 @@ public class LoginTask extends AsyncTask<Void, String, String>{
                 responseString = out.toString();
 
                 JSONObject jsonObject = new JSONObject(responseString);
-                result = jsonObject.getString("user_id");
+                result = jsonObject.getString("employee_id");
 
             } else{
                 response.getEntity().getContent().close();

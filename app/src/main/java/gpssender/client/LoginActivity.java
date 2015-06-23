@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import gpssender.client.model.ServerAnswer;
 import gpssender.client.task.LoginTask;
 import gpssender.client.util.PreferenceUtils;
@@ -30,6 +31,7 @@ public class LoginActivity extends ActionBarActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Crashlytics.start(this);
 
 //        addNotification();
 

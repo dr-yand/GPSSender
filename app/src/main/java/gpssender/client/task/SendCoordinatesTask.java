@@ -60,7 +60,7 @@ public class SendCoordinatesTask extends AsyncTask<Void, String, Boolean>{
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httppost = new HttpPost(host);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-        nameValuePairs.add(new BasicNameValuePair("user_id", userId));
+        nameValuePairs.add(new BasicNameValuePair("employee_id", userId));
         nameValuePairs.add(new BasicNameValuePair("latitude", lat));
         nameValuePairs.add(new BasicNameValuePair("longitude", lon));
 
