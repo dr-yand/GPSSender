@@ -54,7 +54,10 @@ public class LocationService extends Service {
                 if(isGpsEnabled()) {
                     Log.i("location2", mLat + "");
                     addNotification(mLat + "", mLon + "");
-                    new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat + "", mLon + "").execute(new Void[]{});
+                    if(mLat!=0d&&mLon!=0d) {
+                        Log.i("location send", mLat + "");
+                        new SendCoordinatesTask(getApplicationContext(), PreferenceUtils.getUserId(getApplication()), mLat + "", mLon + "").execute(new Void[]{});
+                    }
                 }
             }
         };
